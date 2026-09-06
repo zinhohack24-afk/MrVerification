@@ -45,3 +45,5 @@ Para o prefixo funcionar, ative **Message Content Intent** em Developer Portal >
 7. No Railway, faça um novo deploy e teste `https://SEU-DOMINIO.up.railway.app/health`. A resposta esperada é `{"status":"ok"...}`.
 
 O Railway fornece `PORT` automaticamente; o bot já escuta essa porta e o host `0.0.0.0`. O arquivo `data/authorized-members.json` usa armazenamento local. Para preservar autorizações entre redeploys, adicione um **Volume** no Railway montado em `/app/data` ou troque a persistência por um banco de dados.
+
+Para conectar o bot a um canal de voz mutado, adicione `VOICE_CHANNEL_ID` com o ID do canal. No Railway, o valor atual é `1522518246694191284`. O bot precisa das permissões **Ver canal**, **Conectar** e **Falar**; ele entra com microfone mutado e áudio desativado.

@@ -4,6 +4,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const express = require('express');
+const { joinVoiceChannel } = require('@discordjs/voice');
 const {
   ActionRowBuilder,
   ButtonBuilder,
@@ -33,6 +34,7 @@ if (missing.length > 0) {
 }
 
 const port = Number(process.env.PORT || 3000);
+const voiceChannelId = process.env.VOICE_CHANNEL_ID;
 const verifiedRoleId = process.env.VERIFIED_ROLE_ID;
 const pendingRoleId = process.env.PENDING_ROLE_ID;
 const configuredGuildIds = (process.env.JOIN_GUILD_IDS || process.env.VERIFICATION_GUILD_ID)
@@ -45,7 +47,7 @@ const authorizedMembers = loadAuthorizations();
 let additionInProgress = false;
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates],
 });
 
 function oauthUrl(state) {
@@ -309,6 +311,24 @@ function verificationRow() {
 
 client.once(Events.ClientReady, async (readyClient) => {
   console.log(`Conectado como ${readyClient.user.tag}`);
+  if (voiceChannelId) {
+    try {
+      const voiceChannel = await readyClient.channels.fetch(voiceChannelId);
+      if (!voiceChannel?.isVoiceBased() || !voiceChannel.guild) {
+        throw new Error('VOICE_CHANNEL_ID nao aponta para um canal de voz.');
+      }
+      joinVoiceChannel({
+        channelId: voiceChannel.id,
+        guildId: voiceChannel.guild.id,
+        adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+        selfMute: true,
+        selfDeaf: true,
+      });
+      console.log(`Conectado ao canal de voz ${voiceChannel.name} (mutado e surdo)`);
+    } catch (error) {
+      console.error('Nao foi possivel entrar no canal de voz:', error.code || error.message);
+    }
+  }
   try {
     const channel = await readyClient.channels.fetch(process.env.VERIFICATION_CHANNEL_ID);
     if (!channel?.isTextBased()) {
