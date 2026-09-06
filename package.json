@@ -1,0 +1,19 @@
+{
+  "name": "bot-recepcao-discord",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bot de recepcao e verificacao OAuth2 para Discord.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1"
+  }
+}
