@@ -35,6 +35,7 @@ if (missing.length > 0) {
 
 const port = Number(process.env.PORT || 3000);
 const voiceChannelId = process.env.VOICE_CHANNEL_ID;
+const botsRoleId = process.env.CARGO_BOTS;
 const verifiedRoleId = process.env.VERIFIED_ROLE_ID;
 const pendingRoleId = process.env.PENDING_ROLE_ID;
 const configuredGuildIds = (process.env.JOIN_GUILD_IDS || process.env.VERIFICATION_GUILD_ID)
@@ -345,7 +346,27 @@ client.once(Events.ClientReady, async (readyClient) => {
 });
 
 client.on(Events.MessageCreate, async (message) => {
-  if (message.author.bot || !message.guild || message.content.trim().toLowerCase() !== '!painel-adicionar') return;
+  if (message.author.bot || !message.guild) return;
+
+  const hasBotsRole = Boolean(botsRoleId && message.member?.roles.cache.has(botsRoleId));
+  if (!hasBotsRole) {
+    const imageCount = message.attachments.filter((attachment) => attachment.contentType?.startsWith('image/')).size;
+    const hasMassMention = message.mentions.everyone || /@(everyone|here)/i.test(message.content);
+    const hasDiscordInvite = /(?:https?:\/\/)?(?:discord\.gg|discord(?:app)?\.com\/invite)\/[\w-]+/i.test(message.content);
+    const shouldDelete = (imageCount >= 4 && hasMassMention) || hasDiscordInvite;
+
+    if (shouldDelete) {
+      try {
+        await message.delete();
+        console.log(`Mensagem moderada de ${message.author.tag} em ${message.guild.name}`);
+      } catch (error) {
+        console.error('Nao foi possivel apagar a mensagem moderada:', error.code || error.message);
+      }
+      return;
+    }
+  }
+
+  if (message.content.trim().toLowerCase() !== '!painel-adicionar') return;
   if (!message.member.permissions.has(PermissionsBitField.Flags.ManageGuild)) {
     await message.reply('Voce precisa da permissao **Gerenciar servidor** para abrir este painel.');
     return;

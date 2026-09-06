@@ -34,6 +34,10 @@ O bot processa somente pessoas que autorizaram o OAuth2 no botao de verificacao.
 
 Para o prefixo funcionar, ative **Message Content Intent** em Developer Portal > Bot > Privileged Gateway Intents.
 
+## Protecao de mensagens
+
+O bot apaga automaticamente mensagens sem o cargo `CARGO_BOTS` quando elas contêm quatro ou mais imagens junto com `@everyone` ou `@here`, ou quando contêm convites para outros servidores Discord. O bot precisa da permissão **Gerenciar mensagens** no servidor. Usuários com `CARGO_BOTS` ficam isentos desse filtro.
+
 ## Deploy no Railway
 
 1. Crie um projeto no Railway e escolha **Deploy from GitHub Repo**.
